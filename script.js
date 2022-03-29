@@ -14,6 +14,7 @@ class SetsCalc {
 		];
 		this.add_button = $('#add_button');
 		this.add_button.click(this.addRow.bind(this));
+		this.add_button.prop('disabled', true);
 		$.get('base.json', this.onBaseLoad.bind(this));
 	}
 	
@@ -23,6 +24,8 @@ class SetsCalc {
 	
 	onBaseLoad(base){
 		this.base = base;
+		this.add_button.prop('disabled', false);
+		this.add_button.click();
 	}
 	
 	calc(){
