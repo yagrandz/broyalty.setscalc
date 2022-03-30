@@ -44,8 +44,9 @@ class SetsCalc {
 				row_summary[6]+=(r[7]);
 				row_summary[7]+=(r[8]);
 			});
-			row.setCalc(row_summary);
+			row_summary.forEach((r,k)=>row_summary[k]*=row.quantity); 
 			row_summary.forEach((r,k)=>summary[k]+=r);
+			row.setCalc(row_summary);
 		});
 		this.setSummary(summary)
 	}
@@ -67,6 +68,8 @@ class SetsCalcRow {
 		this.type_dropdown.find('.dropdown-item').click(this.onTypeSelect.bind(this));
 		this.type_field = this.row.find('.item_type');
 		this.type_field.change(this.calc.calc.bind(this.calc));
+		this.quantity_field = this.row.find('.item_quantity');
+		this.quantity_field.change(this.calc.calc.bind(this.calc));
 		this.level_from_field = this.row.find('.item_level_from');
 		this.level_from_field.change(this.onFromChanged.bind(this));
 		this.level_to_field = this.row.find('.item_level_to');
@@ -108,6 +111,10 @@ class SetsCalcRow {
 		this.summary_fields.forEach((f, k)=>f.html(summary[k]));
 	}
 	
+	get quantity(){
+		return this.quantity_field.val();
+	}
+	
 	get type(){
 		return this.type_field.val();
 	}
@@ -118,6 +125,10 @@ class SetsCalcRow {
 	
 	get level_to(){
 		return this.level_to_field.val();
+	}
+	
+	set quantity(v){
+		return this.quantity_field.val(v);
 	}
 	
 	set type(v){
