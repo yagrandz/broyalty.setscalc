@@ -19,6 +19,23 @@ class SetsCalc {
 		$.get('base.json', this.onBaseLoad.bind(this));
 	}
 	
+	formatTime(s){
+		 var fm = [
+			Math.floor(s / 60 / 60 / 24),
+			Math.floor(s / 60 / 60) % 24,
+			Math.floor(s / 60) % 60,
+			s % 60
+		],
+		map = ['d','h', 'm','s'],
+		str = '';
+		fm.forEach((v,k)=>{
+			if(v>0){
+				str+=v+map[k]+' ';
+			}
+		});
+      return str;
+	}
+	
 	addRow(){
 		this.rows.push(new SetsCalcRow(this));
 	}
@@ -52,7 +69,13 @@ class SetsCalc {
 	}
 	
 	setSummary(summary){
-		this.summary_fields.forEach((f, k)=>f.html(summary[k]));
+		this.summary_fields.forEach((f, k)=>{
+			if(f.is('.item_hours_premium, .item_hours')){
+				f.html(this.formatTime(summary[k]));
+			}else{
+				f.html(summary[k]);
+			}
+		});
 	}
 	
 }
@@ -108,7 +131,13 @@ class SetsCalcRow {
 	}
 	
 	setCalc(summary){
-		this.summary_fields.forEach((f, k)=>f.html(summary[k]));
+		this.summary_fields.forEach((f, k)=>{
+			if(f.is('.item_hours_premium, .item_hours')){
+				f.html(this.calc.formatTime(summary[k]));
+			}else{
+				f.html(summary[k]);
+			}
+		});
 	}
 	
 	get quantity(){
