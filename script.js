@@ -15,8 +15,38 @@ class SetsCalc {
 		];
 		this.add_button = $('#add_button');
 		this.add_button.click(this.addRow.bind(this));
+		this.share_modal = $('#share_modal');
+		this.share_modal_input = $('#share_modal_input');
+		this.share_button = $('#share_button');
+		this.share_button.click(this.share.bind(this));
 		this.add_button.prop('disabled', true);
 		$.get('base.json', this.onBaseLoad.bind(this));
+	}
+	
+	getShareUrl(){
+		var url = window.location.origin+window.location.pathname,
+			data = [];
+		this.rows.forEach((row)=>{
+			data.push(row.url_data);
+		});
+		url += '#'+data.join('|');
+		return url;
+	}
+	
+	share(){
+		var url = this.getShareUrl();
+		SetsCalcHelper.copyTextToClipboard(url, this.onShareUrlCopied.bind(this));
+	}
+	
+	onShareUrlCopied(result){
+		if(result){
+			this.share_button.html('COPIED');
+			setTimeout(a=>{this.share_button.html('SHARE');}, 1500);
+		}else{
+			var url = this.getShareUrl();
+			this.share_modal_input.val(url);
+			this.share_modal.modal('show');
+		}
 	}
 	
 	formatTime(s){
@@ -43,7 +73,25 @@ class SetsCalc {
 	onBaseLoad(base){
 		this.base = base;
 		this.add_button.prop('disabled', false);
-		this.add_button.click();
+		if(this.parseHash()){
+			this.applyHash();
+		}else{
+			this.add_button.click();
+		}
+	}
+	
+	parseHash(){
+		return window.location.hash.match(/(([a-z]+):(\d+):(\d+):(\d+))/g);
+	}
+	
+	applyHash(){
+		var matches = this.parseHash();
+		matches.forEach(str=>{
+			let row = new SetsCalcRow(this);
+			row.url_data = str;
+			this.rows.push(row);
+		});
+		this.calc();
 	}
 	
 	calc(){
@@ -81,7 +129,7 @@ class SetsCalc {
 }
 
 class SetsCalcRow {
-	constructor(calc){
+	constructor(calc, data){
 		this.calc = calc;
 		this.row = this.calc.row_tpl.clone();
 		this.calc.table.append(this.row);
@@ -107,6 +155,13 @@ class SetsCalcRow {
 			this.row.find('.item_hours_premium'),
 			this.row.find('.item_hours'),
 		];
+		if(typeof data == 'object'){
+			Object.keys(data).forEach(k=>{
+				if(typeof this[k] != 'undefined'){
+					this[k] = data[k];
+				}
+			});
+		}
 	}
 	
 	onFromChanged(e){		
@@ -125,9 +180,13 @@ class SetsCalcRow {
 		this.calc.calc();
 	}
 	
+	setTypeDropDownVal(v){
+		this.type_dropdown.find('.dropdown-toggle').html(this.type_dropdown.find('[data-value="'+v+'"]').html());
+	}
+	
 	onTypeSelect(e){
-		this.type_dropdown.find('.dropdown-toggle').html($(e.currentTarget).html());
-		this.type_field.val($(e.currentTarget).data('value')).change();
+		this.type = $(e.currentTarget).data('value');
+		this.type_field.change();
 	}
 	
 	setCalc(summary){
@@ -138,6 +197,10 @@ class SetsCalcRow {
 				f.html(summary[k]);
 			}
 		});
+	}
+	
+	get url_data(){
+		return this.type+':'+this.level_from+':'+this.level_to+':'+this.quantity;
 	}
 	
 	get quantity(){
@@ -156,11 +219,20 @@ class SetsCalcRow {
 		return this.level_to_field.val();
 	}
 	
+	set url_data(v){
+		let split_data = v.split(':');
+		this.type = split_data[0];
+		this.level_from = split_data[1];
+		this.level_to = split_data[2];
+		this.quantity = split_data[3];
+	}
+	
 	set quantity(v){
 		return this.quantity_field.val(v);
 	}
 	
 	set type(v){
+		this.setTypeDropDownVal(v);
 		this.type_field.val(v);
 	}
 	
@@ -172,6 +244,42 @@ class SetsCalcRow {
 		this.level_to_field.val(v);
 	}
 }
+
+class SetsCalcHelper {
+	static fallbackCopyTextToClipboard(text, cb) {
+	  var ta = document.createElement("textarea");
+	  ta.value = text;
+	  ta.style.top = "0";
+	  ta.style.left = "0";
+	  ta.style.opacity = "0";
+	  ta.style.position = "fixed";
+
+	  document.body.appendChild(ta);
+	  ta.focus();
+	  ta.select();
+
+	  try {
+		var successful = document.execCommand('copy');
+		cb(successful);
+	  } catch (err) {
+		cb(false);
+	  }
+
+	  document.body.removeChild(ta);
+	}
+	static copyTextToClipboard(text, cb) {
+	  if (!navigator.clipboard) {
+		this.fallbackCopyTextToClipboard(text, cb);
+		return;
+	  }
+	  navigator.clipboard.writeText(text).then(function() {
+		cb(true);
+	  }, function(err) {
+		cb(false);
+	  });
+	}
+}
+
 $(document).ready(function(){
 window.calcInstace = new SetsCalc();
 });

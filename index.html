@@ -102,14 +102,37 @@
 </tbody>
 </table>
 <br/>
-<button type="button" id="add_button" class="btn btn-block btn-success">Add</button>
+<button type="button" id="add_button" class="btn btn-success">Add</button>
+<button type="button" id="share_button" class="btn btn-dark">Share</button>
 <hr/>
 <div class="text-center">
-<img src="img/zajralis.png" style="max-width:64px;" class="img-fluid"/></br>
-<div class="text-muted">Created by clan </div>
-<div><b>ЗАЖРАЛИСЬ</b></div>
+<div class="text-muted">Created by </div>
+<div><img src="img/zajralis.png" style="max-width:128px;" class="img-fluid" data-bs-toggle="modal" data-bs-target="#zajralis_modal"/></div>
 <div><a target="_blank" href="http://bit.ly/broyalty">Много полезной информации по игре</a></div>
 </div>
+</div>
+<div class="modal fade" id="share_modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">COPY SHARE URL</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input class="form-control" id="share_modal_input" readonly="readonly" value=""/>
+      </div>
+      <div class="modal-footer"> 
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="zajralis_modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background: none;border: 0;">
+		<img src="img/zajralis.png" data-bs-dismiss="modal" class="img-fluid"/>
+    </div>
+  </div>
 </div>
 </body>
 </html>
